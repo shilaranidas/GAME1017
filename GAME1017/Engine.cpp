@@ -1,12 +1,15 @@
-#include "Engine.h"
 #include <iostream>
+#include "Engine.h"
 #define WIDTH 1024
-#define HEIGHT 668
+#define HEIGHT 768
 #define FPS 60
 using namespace std;
 
-Engine::Engine():m_bRunning(false){	cout << "Engine class constructed!" << endl; }
-Engine::~Engine(){}
+Engine::Engine() :m_bRunning(false), m_MousePos({ 0,0 })
+{ 
+	cout << "Engine class constructed!" << endl;
+}
+Engine::~Engine(){ delete m_pFSM; }
 
 bool Engine::Init(const char* title, int xpos, int ypos, int width, int height, int flags)
 {
@@ -21,7 +24,11 @@ bool Engine::Init(const char* title, int xpos, int ypos, int width, int height, 
 			m_pRenderer = SDL_CreateRenderer(m_pWindow, -1, 0);
 			if (m_pRenderer != nullptr) // Renderer init success.
 			{
-
+				if (IMG_Init(IMG_INIT_PNG) != 0)
+				{
+					
+				}
+				else return false; // Image init fail.
 			}
 			else return false; // Renderer init fail.
 		}
@@ -30,8 +37,8 @@ bool Engine::Init(const char* title, int xpos, int ypos, int width, int height, 
 	else return false; // SDL init fail.
 	m_fps = (Uint32)round((1 / (double)FPS) * 1000); // Sets FPS in milliseconds and rounds.
 	m_iKeystates = SDL_GetKeyboardState(nullptr);
-	m_pFSM = new FSM();
-	m_pFSM->ChangeState(new TitleState());
+	m_pFSM = new FSM(); // Creates the state machine object/instance.
+	m_pFSM->ChangeState(new TitleState()); // Invoking the ChangeState method to set the initial state, Title.
 	m_bRunning = true; // Everything is okay, start the engine.
 	cout << "Init success!" << endl;
 	return true;
@@ -65,6 +72,17 @@ void Engine::HandleEvents()
 			if (event.key.keysym.sym == SDLK_ESCAPE)
 				m_bRunning = false;
 			break;
+		case SDL_MOUSEBUTTONDOWN:
+			if (event.button.button >= 1 && event.button.button <= 3)
+				m_MouseState[event.button.button - 1] = true;
+			break;
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.button >= 1 && event.button.button <= 3)
+				m_MouseState[event.button.button - 1] = false;
+			break;
+		case SDL_MOUSEMOTION:
+			SDL_GetMouseState(&m_MousePos.x, &m_MousePos.y);
+			break;
 		}
 	}
 }
@@ -84,20 +102,18 @@ bool Engine::KeyDown(SDL_Scancode c)
 
 void Engine::Update()
 {
-	m_pFSM->Update();
+	GetFSM().Update(); // Invokes the update of the state machine.
 }
 
 void Engine::Render()
 {
-	m_pFSM->Render();
+	GetFSM().Render(); // Invokes the render of the state machine.
 }
 
 void Engine::Clean()
 {
 	cout << "Cleaning game." << endl;
-	m_pFSM->Clean();
-	delete m_pFSM;
-	//m_pFSM = nullptr; // Optional.
+	GetFSM().Clean();
 	SDL_DestroyRenderer(m_pRenderer);
 	SDL_DestroyWindow(m_pWindow);
 	SDL_Quit();
@@ -106,7 +122,7 @@ void Engine::Clean()
 int Engine::Run()
 {
 	if (m_bRunning) // What does this do and what can it prevent?
-		return -1;
+		return -1; 
 	if (Init("GAME1007_SDL_Setup", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0) == false)
 		return 1;
 	while (m_bRunning) // Main engine loop.
@@ -124,9 +140,16 @@ int Engine::Run()
 
 Engine& Engine::Instance()
 {
-	static Engine instance; // Object of the Engine class. C++11 prevents line from running more than once.
+	static Engine instance; // C++11 will prevent this line from running more than once. Magic statics.
 	return instance;
 }
 
 SDL_Renderer* Engine::GetRenderer() { return m_pRenderer; }
+
 FSM& Engine::GetFSM() { return *m_pFSM; }
+
+SDL_Point& Engine::GetMousePos() { return m_MousePos; }
+
+bool Engine::GetMouseState(int idx) { return m_MouseState[idx]; }
+
+void Engine::QuitGame() { m_bRunning = false; }

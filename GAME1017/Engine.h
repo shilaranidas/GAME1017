@@ -15,10 +15,11 @@ private: // Private properties.
 	Uint32 m_start, m_end, m_delta, m_fps; // Fixed timestep variables.
 	SDL_Window* m_pWindow; // This represents the SDL window.
 	SDL_Renderer* m_pRenderer; // This represents the buffer to draw to.
-	FSM* m_pFSM; // Pointer to a state machine instance.
+	FSM* m_pFSM; // Pointer to the StateMachine object created dynamically.
+	SDL_Point m_MousePos;
+	bool m_MouseState[3] = { 0,0,0 }; // Button up/down. Left, Middle, Right.
 
 private: // Private methods.
-	Engine(); // Prevent object instantiation outside class.
 	bool Init(const char* title, int xpos, int ypos, int width, int height, int flags);
 	void Wake();
 	void Sleep();
@@ -27,10 +28,14 @@ private: // Private methods.
 	void Render();
 	void Clean();
 public: // Public methods.
+	Engine();
 	~Engine();
 	int Run();
-	static Engine& Instance();
+	static Engine& Instance(); // This static method creates the static instance that can be accessed 'globally'
 	bool KeyDown(SDL_Scancode c);
 	SDL_Renderer* GetRenderer();
 	FSM& GetFSM();
+	SDL_Point& GetMousePos();
+	bool GetMouseState(int idx);
+	void QuitGame();
 };

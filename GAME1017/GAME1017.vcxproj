@@ -116,11 +116,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FSM.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FSM.h" />
   </ItemGroup>
