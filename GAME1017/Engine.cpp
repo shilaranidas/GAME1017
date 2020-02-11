@@ -1,21 +1,16 @@
 #include "Engine.h"
 #include <iostream>
 #define WIDTH 1024
-#define HEIGHT 668
+#define HEIGHT 768
 #define FPS 60
 using namespace std;
 
-//Engine::Engine():m_bRunning(false) // Class initializer list.
-//{ }
-Engine::Engine()
-{
-	m_bRunning = false; 
-}
+Engine::Engine():m_bRunning(false){	cout << "Engine class constructed!" << endl; }
 Engine::~Engine(){}
 
-bool Engine::init(const char* title, int xpos, int ypos, int width, int height, int flags)
+bool Engine::Init(const char* title, int xpos, int ypos, int width, int height, int flags)
 {
-	cout << "Initializing game." << endl;
+	cout << "Initializing game..." << endl;
 	// Attempt to initialize SDL.
 	if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
 	{
@@ -37,18 +32,24 @@ bool Engine::init(const char* title, int xpos, int ypos, int width, int height, 
 	m_iKeystates = SDL_GetKeyboardState(nullptr);
 
 	m_bRunning = true; // Everything is okay, start the engine.
-	cout << "Success!" << endl;
+	cout << "Init success!" << endl;
 	return true;
 }
 
-void Engine::wake()
+void Engine::Wake()
 {
 	m_start = SDL_GetTicks();
 }
 
-// Moved sleep to .h to demonstrate an inline method.
+void Engine::Sleep()
+{
+	m_end = SDL_GetTicks();
+	m_delta = m_end - m_start;
+	if (m_delta < m_fps) // Engine has to sleep.
+		SDL_Delay(m_fps - m_delta);
+}
 
-void Engine::handleEvents()
+void Engine::HandleEvents()
 {
 	SDL_Event event;
 
@@ -68,7 +69,7 @@ void Engine::handleEvents()
 }
 
 // Keyboard utility function.
-bool Engine::keyDown(SDL_Scancode c)
+bool Engine::KeyDown(SDL_Scancode c)
 {
 	if (m_iKeystates != nullptr)
 	{
@@ -80,12 +81,12 @@ bool Engine::keyDown(SDL_Scancode c)
 	return false;
 }
 
-void Engine::update()
+void Engine::Update()
 {
 
 }
 
-void Engine::render()
+void Engine::Render()
 {
 	SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 255);
 	SDL_RenderClear(m_pRenderer); // Clear the screen with the draw color.
@@ -95,7 +96,7 @@ void Engine::render()
 	SDL_RenderPresent(m_pRenderer);
 }
 
-void Engine::clean()
+void Engine::Clean()
 {
 	cout << "Cleaning game." << endl;
 	SDL_DestroyRenderer(m_pRenderer);
@@ -103,19 +104,21 @@ void Engine::clean()
 	SDL_Quit();
 }
 
-int Engine::run()
+int Engine::Run()
 {
-	if (init("GAME1007_SDL_Setup", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0) == false)
+	if (m_bRunning) // What does this do and what can it prevent?
+		return -1; 
+	if (Init("GAME1007_SDL_Setup", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0) == false)
 		return 1;
-	while (m_bRunning)
+	while (m_bRunning) // Main engine loop.
 	{
-		wake();
-		handleEvents();
-		update();
-		render();
+		Wake();
+		HandleEvents();
+		Update();
+		Render();
 		if (m_bRunning)
-			sleep();
+			Sleep();
 	}
-	clean();
+	Clean();
 	return 0;
 }
