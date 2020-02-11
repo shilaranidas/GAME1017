@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Button.h"
+#include "Box.h"
 using namespace std;
 
 class State // This is the abstract base class for all specific states.
@@ -29,6 +30,8 @@ public:
 
 class GameState : public State
 {
+private:
+	vector<Box*> m_vBoxes;
 public:
 	GameState();
 	void Enter();

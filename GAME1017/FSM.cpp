@@ -2,6 +2,7 @@
 #include <iostream>
 #include "FSM.h"
 #include "Engine.h"
+#include <ctime>
 using namespace std;
 
 // Begin State. CTRL+M+H and CTRL+M+U to turn on/off collapsed code.
@@ -17,7 +18,7 @@ PauseState::PauseState() {}
 
 void PauseState::Enter()
 {
-	cout << "Entering Pause..." << endl;
+	//cout << "Entering Pause..." << endl;
 	m_vButtons.push_back(new Button("Img/resume.png", { 0,0,200,80 }, { 412,200,200,80 },
 		std::bind( &FSM::PopState, &Engine::Instance().GetFSM() )));
 	m_vButtons.push_back(new Button("Img/exit.png", { 0,0,400,100 }, { 412,400,200,80 },
@@ -32,7 +33,7 @@ void PauseState::Update()
 
 void PauseState::Render()
 {
-	cout << "Rendering Pause..." << endl;
+	//cout << "Rendering Pause..." << endl;
 	Engine::Instance().GetFSM().GetStates().front()->Render();
 	SDL_SetRenderDrawBlendMode(Engine::Instance().GetRenderer(), SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), 0, 0, 255, 128);
@@ -45,7 +46,7 @@ void PauseState::Render()
 
 void PauseState::Exit()
 {
-	cout << "Exiting Pause..." << endl;
+	//cout << "Exiting Pause..." << endl;
 	for (int i = 0; i < (int)m_vButtons.size(); i++)
 	{
 		delete m_vButtons[i];
@@ -62,22 +63,38 @@ GameState::GameState() {}
 void GameState::Enter()
 { 
 	cout << "Entering Game..." << endl;
+	srand((unsigned)time(NULL));
+	m_vBoxes.reserve(4);
+	m_vBoxes.push_back(new Box({ 100, 100, 100, 100 }));
+	m_vBoxes.push_back(new Box({ 800, 100, 100, 100 }));
+	m_vBoxes.push_back(new Box({ 100, 500, 100, 100 }));
+	m_vBoxes.push_back(new Box({ 800, 500, 100, 100 }));
 }
 
 void GameState::Update()
 {
+	for (int i = 0; i < (int)m_vBoxes.size(); i++)
+		m_vBoxes[i]->Update();
 	if (Engine::Instance().KeyDown(SDL_SCANCODE_P) == 1)
 		Engine::Instance().GetFSM().PushState(new PauseState());
 	else if (Engine::Instance().KeyDown(SDL_SCANCODE_X) == 1)
 		Engine::Instance().GetFSM().ChangeState(new TitleState());
+	else if (Engine::Instance().KeyDown(SDL_SCANCODE_SPACE) == 1)
+	{
+		for (int i = 0; i < (int)m_vBoxes.size(); i++)
+			m_vBoxes[i]->Reset();
+	}
 
 }
 
 void GameState::Render()
 {
-	cout << "Rendering Game..." << endl;
-	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), 0, 255, 0, 255);
+	//cout << "Rendering Game..." << endl;
+	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), 0, 0, 0, 255);
 	SDL_RenderClear(Engine::Instance().GetRenderer());
+	// Render stuff.
+	for (int i = 0; i < (int)m_vBoxes.size(); i++)
+		m_vBoxes[i]->Render();
 	// If GameState != current state.
 	if (dynamic_cast<GameState*>(Engine::Instance().GetFSM().GetStates().back()))
 		State::Render();
@@ -86,9 +103,16 @@ void GameState::Render()
 void GameState::Exit()
 { 
 	cout << "Exiting Game..." << endl;
+	for (int i = 0; i < (int)m_vBoxes.size(); i++)
+	{
+		delete m_vBoxes[i];
+		m_vBoxes[i] = nullptr;
+	}
+	m_vBoxes.clear();
 }
 
 void GameState::Resume() { cout << "Resuming Game..." << endl; }
+
 // End GameState.
 
 // Begin TitleState.
@@ -96,7 +120,7 @@ TitleState::TitleState() {}
 
 void TitleState::Enter()
 { 
-	cout << "Entering Title..." << endl;
+	//cout << "Entering Title..." << endl;
 	m_vButtons.push_back(new Button("Img/button.png", { 0,0,400,100 }, { 312,100,400,100 },
 		std::bind( &FSM::ChangeState, &Engine::Instance().GetFSM(), new GameState() )));
 	// For the bind: what function, what instance, any parameters.
@@ -112,7 +136,7 @@ void TitleState::Update()
 
 void TitleState::Render()
 {
-	cout << "Rendering Title..." << endl;
+	//cout << "Rendering Title..." << endl;
 	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), 255, 0, 0, 255);
 	SDL_RenderClear(Engine::Instance().GetRenderer());
 	for (int i = 0; i < (int)m_vButtons.size(); i++)
@@ -122,7 +146,7 @@ void TitleState::Render()
 
 void TitleState::Exit()
 { 
-	cout << "Exiting Title..." << endl;
+	//cout << "Exiting Title..." << endl;
 	for (int i = 0; i < (int)m_vButtons.size(); i++)
 	{
 		delete m_vButtons[i];

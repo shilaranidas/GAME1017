@@ -1,7 +1,8 @@
 #include <iostream>
 #include "Engine.h"
+
 #define WIDTH 1024
-#define HEIGHT 768
+#define HEIGHT 668
 #define FPS 60
 using namespace std;
 
@@ -13,6 +14,7 @@ Engine::~Engine(){ delete m_pFSM; }
 
 bool Engine::Init(const char* title, int xpos, int ypos, int width, int height, int flags)
 {
+	
 	cout << "Initializing game..." << endl;
 	// Attempt to initialize SDL.
 	if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
@@ -37,6 +39,7 @@ bool Engine::Init(const char* title, int xpos, int ypos, int width, int height, 
 	else return false; // SDL init fail.
 	m_fps = (Uint32)round((1 / (double)FPS) * 1000); // Sets FPS in milliseconds and rounds.
 	m_iKeystates = SDL_GetKeyboardState(nullptr);
+	
 	m_pFSM = new FSM(); // Creates the state machine object/instance.
 	m_pFSM->ChangeState(new TitleState()); // Invoking the ChangeState method to set the initial state, Title.
 	m_bRunning = true; // Everything is okay, start the engine.
@@ -72,16 +75,18 @@ void Engine::HandleEvents()
 			if (event.key.keysym.sym == SDLK_ESCAPE)
 				m_bRunning = false;
 			break;
+		
 		case SDL_MOUSEBUTTONDOWN:
 			if (event.button.button >= 1 && event.button.button <= 3)
-				m_MouseState[event.button.button - 1] = true;
+				m_MouseState[event.button.button - 1] = true;			
 			break;
 		case SDL_MOUSEBUTTONUP:
 			if (event.button.button >= 1 && event.button.button <= 3)
-				m_MouseState[event.button.button - 1] = false;
+				m_MouseState[event.button.button - 1] = false;			
 			break;
 		case SDL_MOUSEMOTION:
 			SDL_GetMouseState(&m_MousePos.x, &m_MousePos.y);
+			//SDL_GetMouseState(&m_iMouseX, &m_iMouseY);
 			break;
 		}
 	}
@@ -99,9 +104,9 @@ bool Engine::KeyDown(SDL_Scancode c)
 	}
 	return false;
 }
-
 void Engine::Update()
 {
+	
 	GetFSM().Update(); // Invokes the update of the state machine.
 }
 
@@ -153,3 +158,6 @@ SDL_Point& Engine::GetMousePos() { return m_MousePos; }
 bool Engine::GetMouseState(int idx) { return m_MouseState[idx]; }
 
 void Engine::QuitGame() { m_bRunning = false; }
+//int Engine::GetMouseX() { return m_iMouseX; }
+//int Engine::GetMouseY() { return m_iMouseY; }
+//bool Engine::GetMouseBtn(int i) { return m_bMouseBtn[i]; }
