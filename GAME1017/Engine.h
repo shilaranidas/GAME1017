@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
+#include "FSM.h"
 
 // Do not include any macros, initialized properties or full function definitions in this header.
 
@@ -14,18 +15,22 @@ private: // Private properties.
 	Uint32 m_start, m_end, m_delta, m_fps; // Fixed timestep variables.
 	SDL_Window* m_pWindow; // This represents the SDL window.
 	SDL_Renderer* m_pRenderer; // This represents the buffer to draw to.
+	FSM* m_pFSM; // Pointer to a state machine instance.
 
 private: // Private methods.
+	Engine(); // Prevent object instantiation outside class.
 	bool Init(const char* title, int xpos, int ypos, int width, int height, int flags);
 	void Wake();
 	void Sleep();
 	void HandleEvents();
-	bool KeyDown(SDL_Scancode c);
 	void Update();
 	void Render();
 	void Clean();
 public: // Public methods.
-	Engine();
 	~Engine();
 	int Run();
+	static Engine& Instance();
+	bool KeyDown(SDL_Scancode c);
+	SDL_Renderer* GetRenderer();
+	FSM& GetFSM();
 };

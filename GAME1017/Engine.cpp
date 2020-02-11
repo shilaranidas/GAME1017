@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include <iostream>
 #define WIDTH 1024
-#define HEIGHT 768
+#define HEIGHT 668
 #define FPS 60
 using namespace std;
 
@@ -30,7 +30,8 @@ bool Engine::Init(const char* title, int xpos, int ypos, int width, int height, 
 	else return false; // SDL init fail.
 	m_fps = (Uint32)round((1 / (double)FPS) * 1000); // Sets FPS in milliseconds and rounds.
 	m_iKeystates = SDL_GetKeyboardState(nullptr);
-
+	m_pFSM = new FSM();
+	m_pFSM->ChangeState(new TitleState());
 	m_bRunning = true; // Everything is okay, start the engine.
 	cout << "Init success!" << endl;
 	return true;
@@ -83,22 +84,20 @@ bool Engine::KeyDown(SDL_Scancode c)
 
 void Engine::Update()
 {
-
+	m_pFSM->Update();
 }
 
 void Engine::Render()
 {
-	SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 255);
-	SDL_RenderClear(m_pRenderer); // Clear the screen with the draw color.
-	// Render stuff.
-
-	// Draw anew.
-	SDL_RenderPresent(m_pRenderer);
+	m_pFSM->Render();
 }
 
 void Engine::Clean()
 {
 	cout << "Cleaning game." << endl;
+	m_pFSM->Clean();
+	delete m_pFSM;
+	//m_pFSM = nullptr; // Optional.
 	SDL_DestroyRenderer(m_pRenderer);
 	SDL_DestroyWindow(m_pWindow);
 	SDL_Quit();
@@ -107,7 +106,7 @@ void Engine::Clean()
 int Engine::Run()
 {
 	if (m_bRunning) // What does this do and what can it prevent?
-		return -1; 
+		return -1;
 	if (Init("GAME1007_SDL_Setup", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0) == false)
 		return 1;
 	while (m_bRunning) // Main engine loop.
@@ -122,3 +121,12 @@ int Engine::Run()
 	Clean();
 	return 0;
 }
+
+Engine& Engine::Instance()
+{
+	static Engine instance; // Object of the Engine class. C++11 prevents line from running more than once.
+	return instance;
+}
+
+SDL_Renderer* Engine::GetRenderer() { return m_pRenderer; }
+FSM& Engine::GetFSM() { return *m_pFSM; }
