@@ -65,10 +65,13 @@ void GameState::Enter()
 	cout << "Entering Game..." << endl;
 	srand((unsigned)time(NULL));
 	m_vBoxes.reserve(4);
-	m_vBoxes.push_back(new Box({ 100, 100, 100, 100 }));
+	DataHandle* dh = new DataHandle();
+	m_vBoxes =dh->ReadData();
+	delete dh;
+	/*m_vBoxes.push_back(new Box({ 100, 100, 100, 100 }));
 	m_vBoxes.push_back(new Box({ 800, 100, 100, 100 }));
 	m_vBoxes.push_back(new Box({ 100, 500, 100, 100 }));
-	m_vBoxes.push_back(new Box({ 800, 500, 100, 100 }));
+	m_vBoxes.push_back(new Box({ 800, 500, 100, 100 }));*/
 }
 
 void GameState::Update()
@@ -103,6 +106,9 @@ void GameState::Render()
 void GameState::Exit()
 { 
 	cout << "Exiting Game..." << endl;
+	DataHandle* dh = new DataHandle();
+	dh->WriteData(m_vBoxes);
+	delete dh;
 	for (int i = 0; i < (int)m_vBoxes.size(); i++)
 	{
 		delete m_vBoxes[i];
@@ -111,7 +117,14 @@ void GameState::Exit()
 	m_vBoxes.clear();
 }
 
-void GameState::Resume() { cout << "Resuming Game..." << endl; }
+void GameState::Resume()
+{
+	cout << "Resuming Game..." << endl;
+	DataHandle* dh = new DataHandle();
+	m_vBoxes = dh->ReadData();
+
+	delete dh;
+}
 
 // End GameState.
 

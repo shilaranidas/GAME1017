@@ -28,3 +28,12 @@ void Box::Render()
 	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), m_cColor.r, m_cColor.g, m_cColor.b, m_cColor.a);
 	SDL_RenderFillRect(Engine::Instance().GetRenderer(), &m_rDst);
 }
+SDL_Rect  Box::getBoxSize()
+{
+	return m_rDst;
+}
+
+SDL_Color Box::getBoxColor()
+{
+	return m_cColor;
+}
