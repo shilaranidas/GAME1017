@@ -8,9 +8,12 @@ using namespace std;
 // Begin State. CTRL+M+H and CTRL+M+U to turn on/off collapsed code.
 void State::Render()
 {
+	cout << "Rendering State..."  << endl;
 	SDL_RenderPresent(Engine::Instance().GetRenderer());
 }
-void State::Resume() {}
+void State::Resume() {
+	cout << "Resume State..."  << endl;
+}
 // End State.
 
 // Begin PauseState.
@@ -33,7 +36,7 @@ void PauseState::Update()
 
 void PauseState::Render()
 {
-	//cout << "Rendering Pause..." << endl;
+	cout << "Rendering PauseState..."  << endl;
 	Engine::Instance().GetFSM().GetStates().front()->Render();
 	SDL_SetRenderDrawBlendMode(Engine::Instance().GetRenderer(), SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), 0, 0, 255, 128);
@@ -64,9 +67,9 @@ void GameState::Enter()
 { 
 	cout << "Entering Game..." << endl;
 	srand((unsigned)time(NULL));
-	m_vBoxes.reserve(4);
+	Engine::Instance(). m_vBoxes.reserve(4);
 	DataHandle* dh = new DataHandle();
-	m_vBoxes =dh->ReadData();
+	Engine::Instance().m_vBoxes =dh->ReadData();
 	delete dh;
 	/*m_vBoxes.push_back(new Box({ 100, 100, 100, 100 }));
 	m_vBoxes.push_back(new Box({ 800, 100, 100, 100 }));
@@ -76,28 +79,29 @@ void GameState::Enter()
 
 void GameState::Update()
 {
-	for (int i = 0; i < (int)m_vBoxes.size(); i++)
-		m_vBoxes[i]->Update();
+	for (int i = 0; i < (int)Engine::Instance().m_vBoxes.size(); i++)
+		Engine::Instance().m_vBoxes[i]->Update();
 	if (Engine::Instance().KeyDown(SDL_SCANCODE_P) == 1)
 		Engine::Instance().GetFSM().PushState(new PauseState());
 	else if (Engine::Instance().KeyDown(SDL_SCANCODE_X) == 1)
 		Engine::Instance().GetFSM().ChangeState(new TitleState());
 	else if (Engine::Instance().KeyDown(SDL_SCANCODE_SPACE) == 1)
 	{
-		for (int i = 0; i < (int)m_vBoxes.size(); i++)
-			m_vBoxes[i]->Reset();
+		for (int i = 0; i < (int)Engine::Instance().m_vBoxes.size(); i++)
+			Engine::Instance().m_vBoxes[i]->Reset();
 	}
 
 }
 
 void GameState::Render()
 {
-	//cout << "Rendering Game..." << endl;
+	cout << "Rendering GameState..."<< Engine::Instance().m_vBoxes.size() << endl;
+	SDL_SetRenderDrawBlendMode(Engine::Instance().GetRenderer(), SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), 0, 0, 0, 255);
 	SDL_RenderClear(Engine::Instance().GetRenderer());
 	// Render stuff.
-	for (int i = 0; i < (int)m_vBoxes.size(); i++)
-		m_vBoxes[i]->Render();
+	for (int i = 0; i < (int)Engine::Instance().m_vBoxes.size(); i++)
+		Engine::Instance().m_vBoxes[i]->Render();
 	// If GameState != current state.
 	if (dynamic_cast<GameState*>(Engine::Instance().GetFSM().GetStates().back()))
 		State::Render();
@@ -107,23 +111,23 @@ void GameState::Exit()
 { 
 	cout << "Exiting Game..." << endl;
 	DataHandle* dh = new DataHandle();
-	dh->WriteData(m_vBoxes);
+	dh->WriteData(Engine::Instance().m_vBoxes);
 	delete dh;
-	for (int i = 0; i < (int)m_vBoxes.size(); i++)
+	for (int i = 0; i < (int)Engine::Instance().m_vBoxes.size(); i++)
 	{
-		delete m_vBoxes[i];
-		m_vBoxes[i] = nullptr;
+		delete Engine::Instance().m_vBoxes[i];
+		Engine::Instance().m_vBoxes[i] = nullptr;
 	}
-	m_vBoxes.clear();
+	Engine::Instance().m_vBoxes.clear();
 }
 
 void GameState::Resume()
 {
-	cout << "Resuming Game..." << endl;
-	DataHandle* dh = new DataHandle();
-	m_vBoxes = dh->ReadData();
+	cout << "Resuming GameState ..." << Engine::Instance().m_vBoxes.size() << endl;
+//	DataHandle* dh = new DataHandle();
+	//m_vBoxes = dh->ReadData();
 
-	delete dh;
+	//delete dh;
 }
 
 // End GameState.
@@ -171,6 +175,7 @@ void TitleState::Exit()
 // End TitleState.
 
 // Begin StateMachine.
+
 void FSM::Update()
 {
 	if (!m_vStates.empty()) // empty() and back() are methods of the vector type.
@@ -226,3 +231,10 @@ void FSM::Clean()
 
 vector<State*>& FSM::GetStates() { return m_vStates; }
 // End StateMachine.
+
+//ostream & operator<<(ostream & os, const FSM & e)
+//{
+//	// TODO: insert return statement here
+//	//os << e.GetStates(). << ": " << e.health << "|" << e.speed;
+//	return NULL;
+//}

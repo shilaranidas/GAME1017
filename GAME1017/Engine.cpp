@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Engine.h"
+#include <string.h>
 
 #define WIDTH 1024
 #define HEIGHT 668
@@ -112,6 +113,8 @@ void Engine::Update()
 
 void Engine::Render()
 {
+	//std::cout << "getFSM " << GetFSM() << std::endl;
+	auto a=GetFSM().GetStates();
 	GetFSM().Render(); // Invokes the render of the state machine.
 }
 

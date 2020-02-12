@@ -22,7 +22,7 @@ private: // Private properties.
 	FSM* m_pFSM; // Pointer to the StateMachine object created dynamically.
 	SDL_Point m_MousePos;
 	bool m_MouseState[3] = { 0,0,0 }; // Button up/down. Left, Middle, Right.
-
+	
 private: // Private methods.
 	bool Init(const char* title, int xpos, int ypos, int width, int height, int flags);
 	void Wake();
@@ -31,6 +31,8 @@ private: // Private methods.
 	void Update();
 	void Render();
 	void Clean();
+public:
+	vector<Box*> m_vBoxes;
 public: // Public methods.
 	Engine();
 	~Engine();

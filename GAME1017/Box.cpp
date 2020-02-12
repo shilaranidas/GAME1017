@@ -1,6 +1,7 @@
 #include "Box.h"
 #include "Engine.h"
 #include <cstdlib>
+#include <iostream>
 
 void Box::Update()
 {
@@ -25,6 +26,7 @@ void Box::Update()
 
 void Box::Render()
 {
+	std::cout << "box from render with color("<< unsigned( m_cColor.r) <<","<< unsigned( m_cColor.g)<<","<< unsigned( m_cColor.b)<<") and position ("<< m_rDst .x<<","<< m_rDst .y<<")"<< std::endl;
 	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), m_cColor.r, m_cColor.g, m_cColor.b, m_cColor.a);
 	SDL_RenderFillRect(Engine::Instance().GetRenderer(), &m_rDst);
 }

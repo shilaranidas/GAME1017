@@ -32,7 +32,7 @@ public:
 class GameState : public State
 {
 private:
-	vector<Box*> m_vBoxes;
+	
 public:
 	GameState();
 	void Enter();
@@ -66,4 +66,5 @@ public:
 	void PopState();
 	void Clean();
 	vector<State*>& GetStates();
+	//friend ostream& operator<<(ostream& os, const FSM& e);
 };
