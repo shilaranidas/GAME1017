@@ -5,14 +5,14 @@
 #include "SDL_image.h"
 using namespace std;
 
-Button::Button(const char* s, SDL_Rect src, SDL_Rect dst, std::function<void()> cb)
-	: m_rSrc(src), m_rDst(dst), m_iFrame(0)
+Button::Button(const char* s, SDL_Rect src, SDL_Rect dst) //, std::function<void()> cb
+	: m_rSrc(src), m_rDst(dst), m_state(STATE_UP)
 {
-	cout << "Constructing button!" << endl;
+	//cout << "Constructing button!" << endl;
 	// Set the button image. You should have some fail checking just in case. 
 	m_pText = IMG_LoadTexture(Engine::Instance().GetRenderer(), s);
 	// Setting the callback.
-	m_callback = cb;
+	//m_callback = cb;
 }
 
 Button::~Button()
@@ -31,30 +31,32 @@ bool Button::MouseCollision()
 void Button::Update()
 {
 	bool col = MouseCollision();
-	switch (m_iFrame)
+	switch (m_state)
 	{
-	case MOUSE_UP:
+	case STATE_UP:
 		if (col)   
-			m_iFrame = MOUSE_OVER;
+			m_state = STATE_OVER;
 		break;
-	case MOUSE_OVER:
+	case STATE_OVER:
 		
 		if (!col)
-			m_iFrame = MOUSE_UP;
+			m_state = STATE_UP;
 		else if (col && Engine::Instance().GetMouseState(0))
-			m_iFrame = MOUSE_DOWN;
+			m_state = STATE_DOWN;
 		break;
-	case MOUSE_DOWN:
+	case STATE_DOWN:
 		if (!Engine::Instance().GetMouseState(0))
 		{
 			if (col)
 			{
-				m_iFrame = MOUSE_OVER;
+				m_state = STATE_OVER;
 				// Execute callback.
-				m_callback();
+				//m_callback();
+				// Execute new "callback".
+				Execute();
 			}
 			else 
-				m_iFrame = MOUSE_UP;
+				m_state = STATE_UP;
 		}
 		break;
 	}
@@ -62,6 +64,25 @@ void Button::Update()
 
 void Button::Render()
 {
-	m_rSrc.x = m_rSrc.w * m_iFrame;
+	m_rSrc.x = m_rSrc.w * m_state;
 	SDL_RenderCopy(Engine::Instance().GetRenderer(), m_pText, &m_rSrc, &m_rDst);
+}
+// Yes, the downside of the command pattern is we need a subclass for each unique type of button.
+
+PlayButton::PlayButton(const char * s, SDL_Rect src, SDL_Rect dst) :Button(s, src, dst) {}
+void PlayButton::Execute()
+{
+	Engine::Instance().GetFSM().ChangeState(new GameState);
+}
+
+ExitButton::ExitButton(const char * s, SDL_Rect src, SDL_Rect dst) :Button(s, src, dst) {}
+void ExitButton::Execute()
+{
+	Engine::Instance().QuitGame();
+}
+
+ResumeButton::ResumeButton(const char * s, SDL_Rect src, SDL_Rect dst) :Button(s, src, dst) {}
+void ResumeButton::Execute()
+{
+	Engine::Instance().GetFSM().PopState();
 }

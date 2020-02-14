@@ -8,11 +8,11 @@ using namespace std;
 // Begin State. CTRL+M+H and CTRL+M+U to turn on/off collapsed code.
 void State::Render()
 {
-	cout << "Rendering State..."  << endl;
+	//cout << "Rendering State..."  << endl;
 	SDL_RenderPresent(Engine::Instance().GetRenderer());
 }
 void State::Resume() {
-	cout << "Resume State..."  << endl;
+	//cout << "Resume State..."  << endl;
 }
 // End State.
 
@@ -22,10 +22,11 @@ PauseState::PauseState() {}
 void PauseState::Enter()
 {
 	//cout << "Entering Pause..." << endl;
-	m_vButtons.push_back(new Button("Img/resume.png", { 0,0,200,80 }, { 412,200,200,80 },
-		std::bind( &FSM::PopState, &Engine::Instance().GetFSM() )));
-	m_vButtons.push_back(new Button("Img/exit.png", { 0,0,400,100 }, { 412,400,200,80 },
-		std::bind( &Engine::QuitGame, &Engine::Instance())) );
+	m_vButtons.push_back(new ResumeButton("Img/resume.png", { 0,0,200,80 }, { 412,200,200,80 }));
+	//,	std::bind(&FSM::PopState, &Engine::Instance().GetFSM())
+	// This exit button has a different size but SAME function as the one in title.
+	m_vButtons.push_back(new ExitButton("Img/exit.png", { 0,0,400,100 }, { 412,400,200,80 }) );
+	//,	std::bind(&Engine::QuitGame, &Engine::Instance())
 }
 
 void PauseState::Update()
@@ -36,7 +37,7 @@ void PauseState::Update()
 
 void PauseState::Render()
 {
-	cout << "Rendering PauseState..."  << endl;
+	//cout << "Rendering PauseState..."  << endl;
 	Engine::Instance().GetFSM().GetStates().front()->Render();
 	SDL_SetRenderDrawBlendMode(Engine::Instance().GetRenderer(), SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), 0, 0, 255, 128);
@@ -65,7 +66,7 @@ GameState::GameState() {}
 
 void GameState::Enter()
 { 
-	cout << "Entering Game..." << endl;
+	//cout << "Entering Game..." << endl;
 	srand((unsigned)time(NULL));
 	Engine::Instance(). m_vBoxes.reserve(4);
 	DataHandle* dh = new DataHandle();
@@ -95,7 +96,7 @@ void GameState::Update()
 
 void GameState::Render()
 {
-	cout << "Rendering GameState..."<< Engine::Instance().m_vBoxes.size() << endl;
+	//cout << "Rendering GameState..."<< Engine::Instance().m_vBoxes.size() << endl;
 	SDL_SetRenderDrawBlendMode(Engine::Instance().GetRenderer(), SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(Engine::Instance().GetRenderer(), 0, 0, 0, 255);
 	SDL_RenderClear(Engine::Instance().GetRenderer());
@@ -109,7 +110,7 @@ void GameState::Render()
 
 void GameState::Exit()
 { 
-	cout << "Exiting Game..." << endl;
+	//cout << "Exiting Game..." << endl;
 	DataHandle* dh = new DataHandle();
 	dh->WriteData(Engine::Instance().m_vBoxes);
 	delete dh;
@@ -123,7 +124,7 @@ void GameState::Exit()
 
 void GameState::Resume()
 {
-	cout << "Resuming GameState ..." << Engine::Instance().m_vBoxes.size() << endl;
+	//cout << "Resuming GameState ..." << Engine::Instance().m_vBoxes.size() << endl;
 //	DataHandle* dh = new DataHandle();
 	//m_vBoxes = dh->ReadData();
 
@@ -138,11 +139,11 @@ TitleState::TitleState() {}
 void TitleState::Enter()
 { 
 	//cout << "Entering Title..." << endl;
-	m_vButtons.push_back(new Button("Img/button.png", { 0,0,400,100 }, { 312,100,400,100 },
-		std::bind( &FSM::ChangeState, &Engine::Instance().GetFSM(), new GameState() )));
+	m_vButtons.push_back(new PlayButton("Img/button.png", { 0,0,400,100 }, { 312,100,400,100 }));
+	//,	std::bind(&FSM::ChangeState, &Engine::Instance().GetFSM(), new GameState())
 	// For the bind: what function, what instance, any parameters.
-	m_vButtons.push_back(new Button("Img/exit.png", { 0,0,400,100 }, { 312,300,400,100 },
-		std::bind( &Engine::QuitGame, &Engine::Instance() )));
+	m_vButtons.push_back(new ExitButton("Img/exit.png", { 0,0,400,100 }, { 312,300,400,100 }));
+	//,	std::bind(&Engine::QuitGame, &Engine::Instance())
 }
 
 void TitleState::Update()
